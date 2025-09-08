@@ -1,13 +1,9 @@
-FROM eclipse-temurin:21-jdk as builder 
-WORKDIR /opt/app 
-COPY .mvn/ .mvn 
-COPY mvnw pom.xml ./ 
-RUN chmod +x ./mvnw 
-RUN ./mvnw dependency:go-offline 
-COPY ./src ./src 
-RUN ./mvnw clean install -DskipTests 
-RUN find ./target -type f -name '*.jar' -exec cp {} /opt/app/app.jar \; -quit 
-FROM eclipse-temurin:21-jre-alpine 
-COPY --from=builder /opt/app/*.jar /opt/app/ 
-EXPOSE 8080 
-ENTRYPOINT ["java", "-jar", "/opt/app/app.jar" ]
+FROM maven:3.9.11-eclipse-temurin-21-alpine AS build
+COPY . .
+RUN mvn clean package -Dmaven.test.skip=true
+
+FROM openjdk:21-jdk-slim
+COPY --from=build /target/demo-0.0.1-SNAPSHOT.jar demo.jar
+
+EXPOSE 8080
+ENTRYPOINT ["java","-jar","backend.jar"]
