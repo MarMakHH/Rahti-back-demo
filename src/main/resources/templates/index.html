@@ -10,6 +10,12 @@
 
 <body>
     <h1>Hello world!</h1>
+    <p>Database content:</p>
+    <tr th:each="message : ${messages}"> 
+        <td>
+            <div th:text="${message}"></div>
+        </td>
+    </tr>
 </body>
 
 </html>
